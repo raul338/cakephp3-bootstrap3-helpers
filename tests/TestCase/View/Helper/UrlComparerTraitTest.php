@@ -39,7 +39,7 @@ class UrlComparerTraitTest extends TestCase {
         Configure::write('debug', true);
         Router::scope('/', function (RouteBuilder $routes) {
             $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']); // (1)
-            $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']); // (2)
+            $routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
             $routes->fallbacks(DashedRoute::class);
         });
         Router::prefix('admin', function ($routes) {
@@ -52,11 +52,11 @@ class UrlComparerTraitTest extends TestCase {
             // Test connection
             ['/pages/test', '/pages/test#anchor'],
             ['/pages', '/pages?param=value'],
-            ['/pages/test', ['controller' => 'Pages', 'action' => 'display']],
-            ['/pages/test/id', ['controller' => 'Pages', 'action' => 'display']],
+            ['/pages/test', ['controller' => 'Pages', 'action' => 'display', 'test']],
+            ['/pages/test/id', ['controller' => 'Pages', 'action' => 'display', 'test', 'id']],
             // Controller routes
             ['/user/login', ['controller' => 'user', 'action' => 'login']],
-            ['/user/login/myself?query=no', ['controller' => 'user', 'action' => 'login']],
+            ['/user/login/myself?query=no', ['controller' => 'user', 'action' => 'login', 'myself']],
 
         ];
         $this->_urlsMatchFalse = [
@@ -67,10 +67,10 @@ class UrlComparerTraitTest extends TestCase {
 
     public function testNormalize() {
         $tests = [
-            ['/pages/test', '/pages'], // normalize as /pages due to (2)
+            ['/pages/test', '/pages/test'],
             ['/users/login', '/users/login'],
-            ['/users/login/whatever?query=no', '/users/login'],
-            ['/pages/display/test', '/pages'],
+            ['/users/login/whatever?query=no', '/users/login/whatever'],
+            ['/pages/display/test', '/pages/display/test'],
             ['/admin/users/login', '/admin/users/login'],
         ];
         foreach ($tests as $test) {
@@ -92,37 +92,37 @@ class UrlComparerTraitTest extends TestCase {
         Router::setRequestInfo($request);
         $tests = [
             ['/pages', '/pages'],
-            ['/pages/display/test', '/pages'],
-            ['/pages/test', '/pages'], // normalize as /pages due to (2)
+            ['/pages/display/test', '/pages/display/test'],
+            ['/pages/test', '/pages/test'],
             ['/pages?query=no', '/pages'],
             ['/pages#anchor', '/pages'],
             ['/pages?query=no#anchor', '/pages'],
             ['/users/login', '/users/login'],
-            ['/users/login/whatever', '/users/login'],
+            ['/users/login/whatever', '/users/login/whatever'],
             ['/users/login?query=no', '/users/login'],
             ['/users/login#anchor', '/users/login'],
-            ['/users/login/whatever?query=no#anchor', '/users/login'],
+            ['/users/login/whatever?query=no#anchor', '/users/login/whatever'],
             ['/admin/users/login', '/admin/users/login'],
-            ['/admin/users/login/whatever', '/admin/users/login'],
+            ['/admin/users/login/whatever', '/admin/users/login/whatever'],
             ['/admin/users/login?query=no', '/admin/users/login'],
             ['/admin/users/login#anchor', '/admin/users/login'],
-            ['/admin/users/login/whatever?query=no#anchor', '/admin/users/login'],
+            ['/admin/users/login/whatever?query=no#anchor', '/admin/users/login/whatever'],
             ['/cakephp/admin/users/login', '/admin/users/login'],
-            ['/cakephp/admin/users/login/whatever', '/admin/users/login'],
+            ['/cakephp/admin/users/login/whatever', '/admin/users/login/whatever'],
             ['/cakephp/admin/users/login?query=no', '/admin/users/login'],
             ['/cakephp/admin/users/login#anchor', '/admin/users/login'],
-            ['/cakephp/admin/users/login/whatever?query=no#anchor', '/admin/users/login'],
+            ['/cakephp/admin/users/login/whatever?query=no#anchor', '/admin/users/login/whatever'],
             ['http://localhost/cakephp/pages', '/pages'],
-            ['http://localhost/cakephp/pages/display/test', '/pages'],
-            ['http://localhost/cakephp/pages/test', '/pages'], // normalize as /pages due to (2)
+            ['http://localhost/cakephp/pages/display/test', '/pages/display/test'],
+            ['http://localhost/cakephp/pages/test', '/pages/test'],
             ['http://localhost/cakephp/pages?query=no', '/pages'],
             ['http://localhost/cakephp/pages#anchor', '/pages'],
             ['http://localhost/cakephp/pages?query=no#anchor', '/pages'],
             ['http://localhost/cakephp/admin/users/login', '/admin/users/login'],
-            ['http://localhost/cakephp/admin/users/login/whatever', '/admin/users/login'],
+            ['http://localhost/cakephp/admin/users/login/whatever', '/admin/users/login/whatever'],
             ['http://localhost/cakephp/admin/users/login?query=no', '/admin/users/login'],
             ['http://localhost/cakephp/admin/users/login#anchor', '/admin/users/login'],
-            ['http://localhost/cakephp/admin/users/login/whatever?query=no#anchor', '/admin/users/login'],
+            ['http://localhost/cakephp/admin/users/login/whatever?query=no#anchor', '/admin/users/login/whatever'],
             ['http://github.com/cakephp/admin/users', null],
             ['http://localhost/notcakephp', null],
             ['http://localhost/somewhere/cakephp', null]
@@ -165,17 +165,17 @@ class UrlComparerTraitTest extends TestCase {
         Router::setRequestInfo($request);
         $matchTrue = array_merge($this->_urlsMatchTrue, [
             [[], ['controller' => 'pages', 'action' => 'view', '1']],
-            [[], ['controller' => 'pages', 'action' => 'view']],
+            //[[], ['controller' => 'pages', 'action' => 'view']],
             [[], 'http://localhost/cakephp/pages/view/1'],
             [[], 'https://localhost/cakephp/pages/view/1'],
             [[], '/pages/view/1'],
-            ['/pages/test', '/pages'], // normalize as /pages due to (2)
+            ['/pages/test', '/pages/test'],
             ['/users/login', '/users/login'],
-            ['/users/login/whatever?query=no', '/users/login'],
-            ['/pages/display/test', '/pages'],
+            ['/users/login/whatever?query=no', '/users/login/whatever'],
+            ['/pages/display/test', '/pages/display/test'],
             ['/admin/users/login', '/admin/users/login'],
             ['/cakephp/admin/rights', '/admin/rights'],
-            ['/cakephp/admin/users/edit/1', '/admin/users/edit']
+            ['/cakephp/admin/users/edit/1', '/admin/users/edit/1']
         ]);
         $matchFalse = $this->_urlsMatchFalse;
         $this->_testCompare($matchTrue, $matchFalse);
