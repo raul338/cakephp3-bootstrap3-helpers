@@ -59,7 +59,7 @@ trait UrlComparerTrait {
     /**
      * Checks if the given URL components match the current relative URL. This
      * methods only works with full URL, and do not check the host.
-     * 
+     *
      * @param string $url URL to check.
      *
      * @return bool `true` if the URL matches, `false` otherwise.
@@ -112,7 +112,9 @@ trait UrlComparerTrait {
             return null;
         }
         $url = Router::parse($this->_removeRelative($url));
+        $pass = $url['pass'];
         unset($url['?'], $url['#'], $url['plugin'], $url['pass'], $url['_matchedRoute']);
+        $url += $pass;
         return $this->_removeRelative(Router::url($url));
     }
 

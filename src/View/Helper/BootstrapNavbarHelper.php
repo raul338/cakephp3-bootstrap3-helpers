@@ -230,11 +230,11 @@ aria-haspopup="true" aria-expanded="false">{{content}}{{caret}}</a>',
      * @return string A HTML tag wrapping the link.
      */
     public function link($name, $url = '', array $options = [], array $linkOptions = []) {
-        $url = $this->Url->build($url);
         $options += [
             'active' => $this->config('autoActiveLink') && $this->compareUrls($url),
             'templateVars' => []
         ];
+        $url = $this->Url->build($url);
         $linkOptions += [
             'templateVars' => []
         ];
